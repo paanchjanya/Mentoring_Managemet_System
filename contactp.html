@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Communication Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Previous CSS remains the same, with these additional styles */
+        .parent-card {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .parent-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .student-list-in-parent {
+            background: #f4f4f4;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .communication-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .file-upload-section {
+            margin-top: 15px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .file-upload-btn {
+            display: none;
+        }
+
+        .file-upload-label {
+            cursor: pointer;
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        /* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    color: #333;
+}
+
+header {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    padding: 15px;
+    text-align: center;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-out;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: #f0f0f0;
+    border-radius: 8px;
+    padding: 5px 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 8px;
+    font-size: 16px;
+    color: #555;
+    flex: 1;
+}
+
+.search-box .search-btn {
+    background: #4facfe;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.search-box .search-btn:hover {
+    transform: scale(1.1);
+}
+
+.filter-sort select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-right: 10px;
+    transition: border-color 0.3s;
+}
+
+.filter-sort select:hover {
+    border-color: #4facfe;
+}
+
+.filter-sort .export-btn {
+    background: #00f2fe;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+.filter-sort .export-btn:hover {
+    transform: scale(1.1);
+    background-color: #0288d1;
+}
+
+.parent-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(1fr, 1fr));
+    gap: 20px;
+}
+
+.parent-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.parent-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(79, 172, 254, 0.1), rgba(0, 242, 254, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+}
+
+.parent-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.parent-card:hover::before {
+    opacity: 1;
+}
+
+.parent-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+.student-list-in-parent {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+.communication-actions button {
+    background: #4facfe;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.communication-actions button:hover {
+    background-color: #0288d1;
+    transform: scale(1.05);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    width: 90%;
+    max-width: 500px;
+    animation: zoomIn 0.5s;
+    position: relative;
+}
+
+.modal .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #555;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #4facfe;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.file-upload-label:hover {
+    background-color: #0288d1;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f0f0;
+    padding: 5px 10px;
+    border-radius: 8px;
+    animation: fadeIn 0.5s;
+}
+
+.file-item button {
+    background: transparent;
+    border: none;
+    color: #ff5555;
+    cursor: pointer;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.file-item button:hover {
+    color: #ff0000;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+a {
+    text-decoration: none; /* Ensures no underline on email links */
+    color: chocolate; /* Inherits color from surrounding text */
+}
+    </style>
+</head>
+<body>
+    <header>
+        Parent Communication Portal
+    </header>
+
+    <div class="container">
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search" placeholder="Search Parents...">
+                <button class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="filter-sort">
+                <select id="sort">
+                    <option value="name">Sort by Name</option>
+                    <option value="email">Sort by Email</option>
+                </select>
+                <button class="export-btn">Export</button>
+            </div>
+        </div>
+
+        <div id="parent-list" class="parent-list"></div>
+    </div>
+
+    <script>
+        // Sample parent data
+        const parents = [
+            {
+                parentName: 'John Doe',
+                email: 'johndoe@example.com',
+                phone: '+1234567890',
+                address: '1234 Elm Street, City, Country',
+                students: ['Student A', 'Student B']
+            },
+            {
+                parentName: 'Jane Smith',
+                email: 'janesmith@example.com',
+                phone: '+0987654321',
+                address: '5678 Oak Avenue, City, Country',
+                students: ['Student C']
+            },
+            {
+                parentName: 'James Brown',
+                email: 'jamesbrown@example.com',
+                phone: '+1122334455',
+                address: '9012 Maple Lane, City, Country',
+                students: ['Student D']
+            },
+            {
+                parentName: 'Emily Johnson',
+                email: 'emilyjohnson@example.com',
+                phone: '+3344556677',
+                address: '789 Pine Street, City, Country',
+                students: ['Student E', 'Student F']
+            },
+            {
+                parentName: 'Michael Davis',
+                email: 'michael.davis@example.com',
+                phone: '+5566778899',
+                address: '321 Cedar Road, City, Country',
+                students: ['Student G']
+            },{
+                parentName: 'Olivia Wilson',
+                email: 'olivia.wilson@example.com',
+                phone: '+7788990011',
+                address: '654 Birch Lane, City, Country',
+                students: ['Student H']
+            },
+            {
+                parentName: 'William Anderson',
+                email: 'william.anderson@example.com',
+                phone: '+8899001122',
+                address: '987 Maple Avenue, City, Country',
+                students: ['Student I', 'Student J']
+            },
+            {
+                parentName: 'Sophia Thompson',
+                email: 'sophia.thompson@example.com',
+                phone: '+0011223344',
+                address: '321 Oak Street, City, Country',
+                students: ['Student K', 'Student L']
+            },
+            {
+                parentName: 'James Wilson',
+                email: 'james.wilson@example.com',
+                phone: '+1122334455',
+                address: '9012 Maple Lane, City, Country',
+                students: ['Student M', 'Student N']
+            },
+            {
+                parentName: 'Emily Davis',
+                email: 'emily.davis@example.com',
+                phone: '+3344556677',
+                address: '789 Pine Street, City, Country',
+                students: ['Student O', 'Student P']
+            },{
+                parentName: 'Michael Wilson',
+                email: 'michael.wilson@example.com',
+                phone: '+5566778899',
+                address: '321 Cedar Road, City, Country',
+                students: ['Student Q', 'Student R']
+            },
+            {
+                parentName: 'Olivia Anderson',
+                email: 'olivia.anderson@example.com',
+                phone: '+7788990011',
+                address: '654 Birch Lane, City, Country',
+                students: ['Student S', 'Student T']
+            },
+            {
+                parentName: 'William Thompson',
+                email: 'william.thompson@example.com',
+                phone: '+8899001122',
+                address: '987 Maple Avenue, City, Country',
+                students: ['Student U', 'Student V']
+            },
+            {
+                parentName: 'Sophia Davis',
+                email: 'sophia.davis@example.com',
+                phone: '+0011223344',
+                address: '321 Oak Street, City, Country',
+                students: ['Student W', 'Student X']
+            },
+            {
+                parentName: 'James Wilson',
+                email: 'james.wilson@example.com',
+                phone: '+1122334455',
+                address: '9012 Maple Lane, City, Country',
+                students: ['Student Y', 'Student Z']
+            },
+            {
+                parentName: 'Emily Anderson',
+                email: 'emily.anderson@example.com',
+                phone: '+3344556677',
+                address: '789 Pine Street, City, Country',
+                students: ['Student AA', 'Student BB']
+            },
+            {
+                parentName: 'Michael Davis',
+                email: 'michael.davis@example.com',
+                phone: '+5566778899',
+                address: '321 Cedar Road, City, Country',
+                students: ['Student CC']
+            },
+            {
+                parentName: 'Olivia Wilson',
+                email: 'olivia.wilson@example.com',
+                phone: '+7788990011',
+                address: '654 Birch Lane, City, Country',
+                students: ['Student DD']
+            },
+            {
+                parentName: 'William Thompson',
+                email: 'william.thompson@example.com',
+                phone: '+8899001122',
+                address: '987 Maple Avenue, City, Country',
+                students: ['Student EE', 'Student FF']
+            },
+            {
+                parentName: 'Sophia Davis',
+                email: 'sophia.davis@example.com',
+                phone: '+0011223344',
+                address: '321 Oak Street, City, Country',
+                students: ['Student GG', 'Student HH']
+            },
+            {
+                parentName: 'James Wilson',
+                email: 'james.wilson@example.com',
+                phone: '+1122334455',
+                address: '9012 Maple Lane, City, Country',
+                students: ['Student II', 'Student JJ']
+            }
+
+        ];
+
+        // Function to render parent details
+        function renderParents() {
+            const parentList = document.getElementById('parent-list');
+            parentList.innerHTML = ''; // Clear existing list
+
+            parents.forEach(parent => {
+                const card = document.createElement('div');
+                card.classList.add('parent-card');
+                const studentsHtml = parent.students.map(student => `<div>${student}</div>`).join('');
+                
+                card.innerHTML = `
+                    <div class="parent-info">
+                        <div>
+                            <strong>Parent Name:</strong> ${parent.parentName}<br>
+                            <strong>Email:</strong> <a href="mailto:${parent.email}">${parent.email}</a><br>
+                            <strong>Phone:</strong> ${parent.phone}
+                        </div>
+                        <div>
+                            <strong>Address:</strong> ${parent.address}
+                        </div>
+                    </div>
+                    <div class="student-list-in-parent">
+                        <strong>Students:</strong>
+                        ${studentsHtml}
+                    </div>
+                    <div class="communication-actions">
+                        <button class="email-btn" onclick="openMessageModal('${parent.parentName}', '${parent.email}')">
+                            <i class="fas fa-envelope"></i> Send Message
+                        </button>
+                        <button class="details-btn" onclick="callParent('${parent.phone}')">
+                            <i class="fas fa-phone"></i> Call Parent
+                        </button>
+                    </div>
+                `;
+                parentList.appendChild(card);
+            });
+        }
+        
+        // Call this function to render the parents when the page loads
+        window.onload = renderParents;
+
+
+        function renderParents(filteredParents) {
+    const parentList = document.getElementById('parent-list');
+    parentList.innerHTML = ''; // Clear existing list
+
+    filteredParents.forEach(parent => {
+        const card = document.createElement('div');
+        card.classList.add('parent-card');
+        const studentsHtml = parent.students.map(student => `<div>${student}</div>`).join('');
+        
+        card.innerHTML = `
+            <div class="parent-info">
+                <div>
+                    <strong>Parent Name:</strong> ${parent.parentName}<br>
+                    <strong>Email:</strong> <a href="mailto:${parent.email}">${parent.email}</a><br>
+                    <strong>Phone:</strong> ${parent.phone}
+                </div>
+                <div>
+                    <strong>Address:</strong> ${parent.address}
+                </div>
+            </div>
+            <div class="student-list-in-parent">
+                <strong>Students:</strong>
+                ${studentsHtml}
+            </div>
+            <div class="communication-actions">
+                <button class="email-btn" onclick="openMessageModal('${parent.parentName}', '${parent.email}')">
+                    <i class="fas fa-envelope"></i> Send Message
+                </button>
+                <button class="details-btn" onclick="callParent('${parent.phone}')">
+                    <i class="fas fa-phone"></i> Call Parent
+                </button>
+            </div>
+        `;
+        parentList.appendChild(card);
+    });
+}
+
+// Function to handle the search functionality
+function handleSearch() {
+    const searchTerm = document.getElementById('search').value.toLowerCase();
+    const filteredParents = parents.filter(parent => {
+        return parent.parentName.toLowerCase().includes(searchTerm) ||
+               parent.email.toLowerCase().includes(searchTerm);
+    });
+    renderParents(filteredParents);
+}
+
+// Attach the search function to the search input field
+document.getElementById('search').addEventListener('input', handleSearch);
+
+// Call this function to render all parents when the page loads
+window.onload = () => renderParents(parents);
+    </script>
+</body>
+</html>
