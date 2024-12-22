@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meeting Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6B5B95;
+            --primary-dark: #4A3F7A;
+            --background: #F0EEF6;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --shadow: 0 4px 10px rgba(107, 91, 149, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .scheduler-container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .scheduler-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .scheduler-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .scheduler-header h1 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .scheduler-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .scheduler-form label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            display: block;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .scheduler-form input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .scheduler-form input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(107, 91, 149, 0.2);
+            outline: none;
+        }
+
+        .scheduler-form button {
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scheduler-form button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .scheduler-form button:active {
+            transform: translateY(0);
+        }
+
+        .preview {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .preview h2 {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .meeting {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+        }
+
+        .meeting:hover {
+            transform: translateX(5px);
+            background: #f5f5f5;
+        }
+
+        .meeting p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 5px 0;
+        }
+
+        .delete-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .meeting:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .scheduler-container {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scheduler-container">
+        <div class="scheduler-header">
+            <h1>Meeting Scheduler</h1>
+        </div>
+
+        <form class="scheduler-form" id="scheduler-form">
+            <div class="form-group">
+                <label for="meeting-name">Meeting Name:</label>
+                <input type="text" id="meeting-name" placeholder="Enter meeting name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="meeting-time">Meeting Time:</label>
+                <input type="datetime-local" id="meeting-time" required>
+            </div>
+
+            <div class="form-group">
+                <label for="meeting-description">Description:</label>
+                <input type="text" id="meeting-description" placeholder="Enter meeting description">
+            </div>
+
+            <button type="button" id="schedule-meeting">Schedule Meeting</button>
+        </form>
+
+        <div class="preview" id="preview">
+            <h2>Scheduled Meetings:</h2>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        const schedulerForm = document.getElementById('scheduler-form');
+        const meetingNameInput = document.getElementById('meeting-name');
+        const meetingTimeInput = document.getElementById('meeting-time');
+        const meetingDescInput = document.getElementById('meeting-description');
+        const scheduleMeetingButton = document.getElementById('schedule-meeting');
+        const preview = document.getElementById('preview');
+        const notification = document.getElementById('notification');
+
+        // Load meetings from localStorage
+        let meetings = JSON.parse(localStorage.getItem('meetings')) || [];
+        
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function updateMeetingsList() {
+            const meetingsContainer = preview.querySelector('.meetings-container') || document.createElement('div');
+            meetingsContainer.className = 'meetings-container';
+            meetingsContainer.innerHTML = '';
+
+            meetings.sort((a, b) => new Date(a.time) - new Date(b.time)).forEach((meeting, index) => {
+                const meetingElement = document.createElement('div');
+                meetingElement.classList.add('meeting');
+                meetingElement.innerHTML = `
+                    <p><strong>Meeting Name:</strong> ${meeting.name}</p>
+                    <p><strong>Scheduled Time:</strong> ${new Date(meeting.time).toLocaleString()}</p>
+                    ${meeting.description ? `<p><strong>Description:</strong> ${meeting.description}</p>` : ''}
+                    <button class="delete-btn" data-index="${index}">Delete</button>
+                `;
+                meetingsContainer.appendChild(meetingElement);
+            });
+
+            preview.appendChild(meetingsContainer);
+        }
+
+        scheduleMeetingButton.addEventListener('click', () => {
+            const meetingName = meetingNameInput.value.trim();
+            const meetingTime = meetingTimeInput.value;
+            const meetingDesc = meetingDescInput.value.trim();
+
+            if (meetingName === '' || meetingTime === '') {
+                showNotification('Please fill out the required fields.');
+                return;
+            }
+
+            const newMeeting = {
+                name: meetingName,
+                time: meetingTime,
+                description: meetingDesc
+            };
+
+            meetings.push(newMeeting);
+            localStorage.setItem('meetings', JSON.stringify(meetings));
+            updateMeetingsList();
+            showNotification('Meeting scheduled successfully!');
+
+            meetingNameInput.value = '';
+            meetingTimeInput.value = '';
+            meetingDescInput.value = '';
+        });
+
+        preview.addEventListener('click', (e) => {
+            if (e.target.classList.contains('delete-btn')) {
+                const index = e.target.dataset.index;
+                meetings.splice(index, 1);
+                localStorage.setItem('meetings', JSON.stringify(meetings));
+                updateMeetingsList();
+                showNotification('Meeting deleted successfully!');
+            }
+        });
+
+        // Initial render
+        updateMeetingsList();
+    </script>
+</body>
+</html>
