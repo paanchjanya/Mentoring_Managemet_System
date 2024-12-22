@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #4facfe;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .search-bar input {
+            padding: 10px;
+            font-size: 16px;
+            width: 250px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+
+        .student-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .student-info div {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .student-info strong {
+            font-weight: 500;
+        }
+
+        .performance-graphs {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .graph-container {
+            width: 48%;
+        }
+
+        .marks-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .marks-table th,
+        .marks-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .marks-table th {
+            background: #4facfe;
+            color: white;
+        }
+
+        a {
+            text-decoration: none;
+            color: #4facfe;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Fixed Canvas Sizes */
+        canvas {
+            width: 100% !important;
+            height: 300px !important; /* Adjust height to match the bar graph height */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        Student Details Portal
+    </header>
+
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search by University ID..." oninput="searchStudent()">
+        </div>
+
+        <div id="student-container"></div>
+    </div>
+
+    <script>
+        // Sample student data
+        const students = [
+            {
+                name: 'Praveen Desai',
+                universityId: '2BL22CS128',
+                section: 'B',
+                email: 'desaipraveen22@gmail.com',
+                currentSemester: '5',
+                admissionType: 'SNQ',
+                marks: {
+                    'Mathematics': 89,
+                    'ddco':88,
+                    'os':78,
+                    'dsa':67,
+                    'dsa-lab':84,
+                    'scr':100,
+                    'nss':88,
+                    'oops-java':62,
+                    'git':98
+                }
+            },
+            {
+                name: 'Anjali Singh',
+                universityId: 'VP67890',
+                section: 'B',
+                email: 'anjali@example.com',
+                currentSemester: '4',
+                admissionType: 'CET',
+                marks: {
+                    'Mathematics': 78,
+                    'Physics': 82,
+                    'Chemistry': 74,
+                    'Computer Science': 80
+                }
+            },
+            {
+                name: 'Ravi Patel',
+                universityId: 'VP11223',
+                section: 'C',
+                email: 'ravi@example.com',
+                currentSemester: '3',
+                admissionType: 'Management',
+                marks: {
+                    'Mathematics': 88,
+                    'Physics': 91,
+                    'Chemistry': 84,
+                    'Computer Science': 79
+                }
+            }
+        ];
+
+        // Function to render the student details dynamically
+        function renderStudents(filteredStudents) {
+            const studentContainer = document.getElementById('student-container');
+            studentContainer.innerHTML = ''; // Clear previous content
+
+            filteredStudents.forEach(student => {
+                const card = document.createElement('div');
+                card.classList.add('student-card');
+
+                const subjectNames = Object.keys(student.marks);
+                const subjectMarks = Object.values(student.marks);
+                const totalMarks = subjectMarks.reduce((acc, mark) => acc + mark, 0);
+                const averageMarks = totalMarks / subjectMarks.length;
+
+                // Constructing the student's HTML content
+                card.innerHTML = `
+                    <div class="student-info">
+                        <div><strong>Name:</strong> ${student.name}</div>
+                        <div><strong>University ID:</strong> ${student.universityId}</div>
+                        <div><strong>Section:</strong> ${student.section}</div>
+                        <div><strong>Email:</strong> <a href="mailto:${student.email}">${student.email}</a></div>
+                        <div><strong>Current Semester:</strong> ${student.currentSemester}</div>
+                        <div><strong>Admission Type:</strong> ${student.admissionType}</div>
+                    </div>
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${subjectNames.map(subject => `
+                                <tr>
+                                    <td>${subject}</td>
+                                    <td>${student.marks[subject]}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="performance-graphs">
+                        <div class="graph-container">
+                            <canvas id="barGraph-${student.universityId}"></canvas>
+                        </div>
+                        <div class="graph-container">
+                            <canvas id="pieChart-${student.universityId}"></canvas>
+                        </div>
+                    </div>
+                `;
+
+                // Append the card to the container
+                studentContainer.appendChild(card);
+
+                // Generate the performance bar graph (chart)
+                const ctxBar = document.getElementById(`barGraph-${student.universityId}`).getContext('2d');
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: subjectNames,
+                        datasets: [{
+                            label: 'Marks',
+                            data: subjectMarks,
+                            backgroundColor: [
+                                '#FF5733', // Red
+                                '#33FF57', // Green
+                                '#3357FF', // Blue
+                                '#FF33A1'  // Pink
+                            ],
+                            borderColor: '#0288d1',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Generate the performance pie chart (chart)
+                const ctxPie = document.getElementById(`pieChart-${student.universityId}`).getContext('2d');
+                new Chart(ctxPie, {
+                    type: 'pie',
+                    data: {
+                        labels: subjectNames,
+                        datasets: [{
+                            label: 'Marks Distribution',
+                            data: subjectMarks,
+                            backgroundColor: [
+                                '#FF5733', // Red
+                                '#33FF57', // Green
+                                '#3357FF', // Blue
+                                '#FF33A1'  // Pink
+                            ],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false, // Prevents the pie chart from maintaining its original aspect ratio
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+
+                // Adjusting the canvas size (via style) for pie chart
+                const pieCanvas = document.getElementById(`pieChart-${student.universityId}`);
+                pieCanvas.style.width = '200px';  // Reduced width
+                pieCanvas.style.height = '200px'; // Reduced height
+            });
+        }
+
+        // Function to filter students by university ID
+        function searchStudent() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const filteredStudents = students.filter(student =>
+                student.universityId.toLowerCase().includes(searchInput)
+            );
+            renderStudents(filteredStudents);
+        }
+
+        // Initial call to render all students
+        window.onload = () => {
+            renderStudents(students);
+        };
+    </script>
+</body>
+</html>
