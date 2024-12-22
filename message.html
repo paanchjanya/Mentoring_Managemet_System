@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Messaging Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #4facfe;
+            --secondary-color: #0064fe;
+            --success-color: #4caf50;
+            --success-dark: #388e3c;
+            --background: #f3f4f7;
+            --text-primary: #333;
+            --text-secondary: #555;
+            --card-bg: white;
+            --transition: all 0.3s ease;
+        }
+
+        .dark-theme {
+            --primary-color: #2196f3;
+            --secondary-color: #1976d2;
+            --background: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: #2d2d2d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .messaging-dashboard {
+            width: 90%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            transition: var(--transition);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .dashboard-header h1 {
+            font-size: 28px;
+            color: var(--text-primary);
+            transition: var(--transition);
+            position: relative;
+            display: inline-block;
+        }
+
+        .dashboard-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-header:hover h1::after {
+            transform: scaleX(1);
+        }
+
+        .message-options {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .message-options button {
+            flex: 1;
+            padding: 12px 24px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+        }
+
+        .message-options button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .message-options button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .message-options button:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-form {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .message-form.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message-form label {
+            color: var(--text-primary);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .message-form textarea,
+        .message-form select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: var(--transition);
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .message-form textarea:focus,
+        .message-form select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+
+        .message-form textarea {
+            height: 120px;
+            resize: vertical;
+        }
+
+        .message-form button {
+            align-self: flex-start;
+            padding: 12px 24px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .message-form button:hover {
+            background: var(--success-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-preview {
+            margin-top: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .message-preview.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message-preview h2 {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .message-preview p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            background: var(--background);
+            padding: 15px;
+            border-radius: 8px;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .typing-effect::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="theme-toggle">🌞</button>
+    <div class="toast" id="toast">Message sent successfully! ✨</div>
+    <div class="messaging-dashboard">
+        <div class="dashboard-header">
+            <h1>Mentor Messaging Dashboard</h1>
+        </div>
+
+        <div class="message-options">
+            <button id="individual-btn">Message Individual Mentee</button>
+            <button id="all-btn">Message All Mentees</button>
+        </div>
+
+        <form class="message-form" id="message-form">
+            <label for="mentee-select">Select Mentee:</label>
+            <select id="mentee-select">
+                <option value="all">All Mentees</option>
+                <option value="mentee1">Mentee 1</option>
+                <option value="mentee2">Mentee 2</option>
+                <option value="mentee3">Mentee 3</option>
+            </select>
+
+            <label for="message">Write your message:</label>
+            <textarea id="message" placeholder="Type your message here..."></textarea>
+
+            <button type="button" id="send-message">
+                <span>Send Message</span>
+                <div class="loading-spinner" id="loading-spinner"></div>
+            </button>
+        </form>
+
+        <div class="message-preview" id="message-preview">
+            <h2>Message Preview:</h2>
+            <p id="preview-text">No message to display yet.</p>
+        </div>
+    </div>
+
+    <script>
+        const individualBtn = document.getElementById('individual-btn');
+        const allBtn = document.getElementById('all-btn');
+        const messageForm = document.getElementById('message-form');
+        const menteeSelect = document.getElementById('mentee-select');
+        const messageTextarea = document.getElementById('message');
+        const sendMessageBtn = document.getElementById('send-message');
+        const messagePreview = document.getElementById('message-preview');
+        const previewText = document.getElementById('preview-text');
+        const themeToggle = document.getElementById('theme-toggle');
+        const toast = document.getElementById('toast');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-theme');
+            themeToggle.textContent = document.body.classList.contains('dark-theme') ? '🌙' : '🌞';
+        });
+
+        // Show form with animation
+        function showForm() {
+            messageForm.style.display = 'flex';
+            setTimeout(() => {
+                messageForm.classList.add('active');
+                messagePreview.classList.add('active');
+            }, 10);
+        }
+
+        // Typing effect for preview
+        function typeEffect(text, element) {
+            element.textContent = '';
+            element.classList.add('typing-effect');
+            let index = 0;
+            
+            function type() {
+                if (index < text.length) {
+                    element.textContent += text[index];
+                    index++;
+                    setTimeout(type, 50);
+                } else {
+                    element.classList.remove('typing-effect');
+                }
+            }
+            
+            type();
+        }
+
+        // Show toast notification
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        individualBtn.addEventListener('click', () => {
+            menteeSelect.style.display = 'block';
+            menteeSelect.value = 'mentee1';
+            showForm();
+        });
+
+        allBtn.addEventListener('click', () => {
+            menteeSelect.style.display = 'none';
+            menteeSelect.value = 'all';
+            showForm();
+        });
+
+        sendMessageBtn.addEventListener('click', () => {
+            const recipient = menteeSelect.value === 'all' ? 'All Mentees' : menteeSelect.value;
+            const message = messageTextarea.value;
+
+            if (message.trim() === '') {
+                alert('Please write a message before sending.');
+                return;
+            }
+
+            // Show loading animation
+            loadingSpinner.style.display = 'block';
+            sendMessageBtn.querySelector('span').style.opacity = '0';
+
+            // Simulate sending message
+            setTimeout(() => {
+                loadingSpinner.style.display = 'none';
+                sendMessageBtn.querySelector('span').style.opacity = '1';
+                
+                // Type effect for preview
+                const previewMessage = `To: ${recipient}\nMessage: ${message}`;
+                typeEffect(previewMessage, previewText);
+                
+                // Show success toast
+                showToast();
+                
+                // Clear message
+                messageTextarea.value = '';
+            }, 1500);
+        });
+
+        // Add ripple effect to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const x = e.clientX - e.target.offsetLeft;
+                const y = e.clientY - e.target.offsetTop;
+                
+                const ripple = document.createElement('span');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Textarea auto-resize
+        messageTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    </script>
+</body>
+</html>
