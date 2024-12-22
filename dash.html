@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #4facfe, #00f2fe);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dashboard {
+            width: 90%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile {
+            background: #4facfe;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-menu {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 15px;
+            margin: 8px 0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: bold;
+        }
+
+        .nav-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background-color: white;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-menu a:hover::before {
+            transform: scaleY(1);
+        }
+
+        .profile img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            border: 4px solid white;
+            transition: transform 0.3s;
+        }
+
+        .profile img:hover {
+            transform: scale(1.1);
+        }
+
+        .profile h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .profile p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .dashboard-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .dashboard-content h3::after {
+            content: '';
+            width: 50px;
+            height: 4px;
+            background: #4facfe;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+        }
+
+        .dashboard-content ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .dashboard-content ul li {
+            background: #f4f4f4;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            flex: 1 1 calc(50% - 20px);
+            max-width: calc(50% - 20px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .dashboard-content ul li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .dashboard-content ul li h4 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .dashboard-content ul li p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Enhanced Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            position: relative;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease-in-out;
+            margin: auto;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Center the form elements */
+        .form-group {
+            margin: 20px auto;
+            max-width: 450px;
+        }
+
+        /* Center the emoji picker */
+        .emoji-picker {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px auto;
+        }
+
+        /* Center the feedback tags */
+        .feedback-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px auto;
+            justify-content: center;
+        }
+
+        /* Center the submit button */
+        .submit-btn {
+            display: block;
+            margin: 25px auto 0;
+            max-width: 300px;
+        }
+
+        /* Center the modal title */
+        .modal-title {
+            text-align: center;
+            color: #4facfe;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+            outline: none;
+        }
+
+        .rating-stars {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            cursor: pointer;
+            font-size: 25px;
+            color: #ddd;
+            padding: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input:checked ~ label {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .feedback-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .tag {
+            padding: 5px 15px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tag.selected {
+            background: #4facfe;
+            color: white;
+        }
+
+        .emoji-picker {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .emoji {
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .emoji:hover {
+            transform: scale(1.2);
+        }
+
+        .character-count {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Mentor Profile Section -->
+        <div class="profile">
+            <img src="krishna.jpeg" alt="Mentor Photo">
+            <h2>Vasudeva Krishna</h2>
+            <p>HOD-CSE BLDEACET</p>
+            <div class="nav-menu">
+                <a href="#" class="active">
+                    <div class="icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="viewstudents.html">
+                    <div class="icon">👥</div>
+                    Students
+                </a>
+                <a href="meetings.html">
+                    <div class="icon">📅</div>
+                    Meetings
+                </a>
+                <a href="messages.html">
+                    <div class="icon">💬</div>
+                    Messages
+                </a>
+                <a href="contactparent.html">
+                    <div class="icon">👥</div>
+                    Contact Parent
+                </a>
+                <a href="#" onclick="showFeedbackModal()">
+                    <div class="icon">📝</div>
+                    Give Feedback
+                </a>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <h3>Recent Activities</h3>
+            <ul>
+                <li>
+                    <h4>Student Meeting</h4>
+                    <p>Meeting with Jane Smith scheduled for tomorrow at 2 PM</p>
+                </li>
+                <li>
+                    <h4>Progress Report</h4>
+                    <p>Submitted progress report for John Doe</p>
+                </li>
+                <li>
+                    <h4>Parent Conference</h4>
+                    <p>Upcoming parent conference on Friday</p>
+                </li>
+                <li>
+                    <h4>Assignment Review</h4>
+                    <p>Review pending assignments for Class 10A</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Enhanced Feedback Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeFeedbackModal()">&times;</span>
+            <h2 class="modal-title">Provide Student Feedback</h2>
+            <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                <div class="form-group">
+                    <label for="studentSelect">Select Student</label>
+                    <select id="studentSelect" class="form-control" required>
+                        <!-- Will be populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quick Mood Selection</label>
+                    <div class="emoji-picker">
+                        <span class="emoji" onclick="selectMood('excellent')">😄</span>
+                        <span class="emoji" onclick="selectMood('good')">🙂</span>
+                        <span class="emoji" onclick="selectMood('neutral')">😐</span>
+                        <span class="emoji" onclick="selectMood('concerned')">😕</span>
+                        <span class="emoji" onclick="selectMood('poor')">😟</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Common Feedback Tags</label>
+                    <div class="feedback-tags">
+                        <span class="tag" onclick="toggleTag(this)">Excellent Progress</span>
+                        <span class="tag" onclick="toggleTag(this)">Needs Improvement</span>
+                        <span class="tag" onclick="toggleTag(this)">Active Participation</span>
+                        <span class="tag" onclick="toggleTag(this)">Good Communication</span>
+                        <span class="tag" onclick="toggleTag(this)">Meeting Deadlines</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackType">Feedback Category</label>
+                    <select id="feedbackType" class="form-control" required>
+                        <option value="">Select a category...</option>
+                        <option value="academic">Academic Progress</option>
+                        <option value="behavior">Behavior</option>
+                        <option value="participation">Participation</option>
+                        <option value="attendance">Attendance</option>
+                        <option value="improvement">Areas for Improvement</option>
+                        <option value="achievement">Achievements</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackText">Detailed Feedback</label>
+                    <textarea id="feedbackText" class="form-control" required 
+                              onkeyup="updateCharCount(this)" maxlength="500" rows="5"
+                              placeholder="Provide specific, constructive feedback about the student's performance..."></textarea>
+                    <div class="character-count">500 characters remaining</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating-stars">
+                        <input type="radio" id="star5" name="rating" value="5" required/>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4"/>
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3"/>
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2"/>
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1"/>
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    Submit Feedback
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced JavaScript functionality
+        const selectedTags = new Set();
+        let currentMood = '';
+
+        function showFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('show'), 10);
+            if (document.getElementById('studentSelect').children.length === 0) {
+                populateStudentSelect();
+            }
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+            resetForm();
+        }
+
+        function toggleTag(tagElement) {
+            tagElement.classList.toggle('selected');
+            if (tagElement.classList.contains('selected')) {
+                selectedTags.add(tagElement.textContent);
+            } else {
+                selectedTags.delete(tagElement.textContent);
+            }
+            updateFeedbackText();
+        }
+
+        function selectMood(mood) {
+            currentMood = mood;
+            document.querySelectorAll('.emoji').forEach(emoji => {
+                emoji.style.transform = 'scale(1)';
+            });
+            event.target.style.transform = 'scale(1.2)';
+            updateFeedbackText();
+        }
+
+        function updateFeedbackText() {
+            const feedbackText = document.getElementById('feedbackText');
+            let text = '';
+            
+            if (currentMood) {
+                const moodTexts = {
+                    'excellent': 'The student is showing excellent progress. ',
+                    'good': 'The student is performing well. ',
+                    'neutral': 'The student is maintaining steady progress. ',
+                    'concerned': 'There are some areas that need attention. ',
+                    'poor': 'Significant improvement is needed. '
+                };
+                text += moodTexts[currentMood];
+            }
+
+            if (selectedTags.size > 0) {
+                text += 'Key observations: ' + Array.from(selectedTags).join(', ') + '. ';
+            }
+
+            feedbackText.value = text;
+            updateCharCount(feedbackText);
+        }
+
+        function updateCharCount(textarea) {
+            const maxLength = textarea.getAttribute('maxlength');
+            const currentLength = textarea.value.length;
+            const remaining = maxLength - currentLength;
+            textarea.nextElementSibling.textContent = `${remaining} characters remaining`;
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            const form = event.target;
+            
+            if (!form.checkValidity()) {
+                form.classList.add('shake');
+                setTimeout(() => form.classList.remove('shake'), 500);
+                return;
+            }
+
+            const feedbackData = {
+                studentId: document.getElementById('studentSelect').value,
+                mood: currentMood,
+                tags: Array.from(selectedTags),
+                type: document.getElementById('feedbackType').value,
+                text: document.getElementById('feedbackText').value,
+                rating: document.querySelector('input[name="rating"]:checked').value,
+                timestamp: new Date().toISOString()
+            };
+
+            // Simulate sending to backend
+            console.log('Feedback submitted:', feedbackData);
+            
+            // Show success animation
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.textContent = '✓ Feedback Submitted!';
+            submitBtn.style.backgroundColor = '#4CAF50';
+            
+            setTimeout(() => {
+                closeFeedbackModal();
+                submitBtn.textContent = 'Submit Feedback';
+                submitBtn.style.backgroundColor = '';
+            }, 1500);
+        }
+
+        function resetForm() {
+            document.getElementById('feedbackForm').reset();
+            selectedTags.clear();
+            currentMood = '';
+            document.querySelectorAll('.tag').forEach(tag => tag.classList.remove('selected'));
+            document.querySelectorAll('.emoji').forEach(emoji => emoji.style.transform = 'scale(1)');
+            updateCharCount(document.getElementById('feedbackText'));
+        }
+
+        // Close modal if clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('feedbackModal');
+            if (event.target === modal) {
+                closeFeedbackModal();
+            }
+        }
+
+        // Sample student data - Replace with your actual student data
+        const students = [
+            { id: 1, name: "John Doe" },
+            { id: 2, name: "Jane Smith" },
+            { id: 3, name: "Mike Johnson" }
+        ];
+
+        function populateStudentSelect() {
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = '<option value="">Select a student...</option>';
+            students.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = student.name;
+                select.appendChild(option);
+            });
+        }
+    </script>
+</body>
+</html>
